@@ -6,9 +6,9 @@ use prometheus::{
 }; 
 
 lazy_static! {
-    pub static ref NGINX_REQUEST_COUNTER:IntCounterVec = register_int_counter_vec!("nginx_request_count","nginx_request_count",&["path","status","method","device_type"]).unwrap();
-    pub static ref NGINX_REQUEST_TIME:GaugeVec = register_gauge_vec!("nginx_request_time","nginx_request_time",&["path","status","method","device_type"]).unwrap();
-    pub static ref NGINX_UPSTREAM_RESPONSE_TIME:GaugeVec = register_gauge_vec!("nginx_upstream_response_time","upstream_response_time",&["path","status","method","device_type"]).unwrap();
+    pub static ref NGINX_REQUEST_COUNTER:IntCounterVec = register_int_counter_vec!("nginx_request_count","nginx_request_count",&["path","status","method","device_type","http_host"]).unwrap();
+    pub static ref NGINX_REQUEST_TIME:GaugeVec = register_gauge_vec!("nginx_request_time","nginx_request_time",&["path","status","method","device_type","http_host"]).unwrap();
+    pub static ref NGINX_UPSTREAM_RESPONSE_TIME:GaugeVec = register_gauge_vec!("nginx_upstream_response_time","upstream_response_time",&["path","status","method","device_type","http_host"]).unwrap();
 
     static ref HTTP_BODY_GAUGE: Gauge = register_gauge!(opts!(
         "http_response_size_bytes",

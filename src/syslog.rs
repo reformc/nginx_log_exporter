@@ -20,13 +20,15 @@ pub async fn tt(udp_port:u16){
                                     &req.path,
                                     &request.status,
                                     &req.method,
-                                    &req.device_type
+                                    &req.device_type,
+                                    &request.http_host
                                 ]).inc();
                                 prome::NGINX_REQUEST_TIME.with_label_values(&[
                                     &req.path,
                                     &request.status,
                                     &req.method,
-                                    &req.device_type
+                                    &req.device_type,
+                                    &request.http_host
                                 ]).set(request.request_time.parse::<f64>().unwrap_or_default());
                                 match request.upstream_response_time.parse::<f64>(){
                                     Ok(resp_time)=>{
@@ -34,7 +36,8 @@ pub async fn tt(udp_port:u16){
                                             &req.path,
                                             &request.status,
                                             &req.method,
-                                            &req.device_type
+                                            &req.device_type,
+                                            &request.http_host
                                         ]).set(resp_time);
                                     },
                                     Err(_)=>{}
@@ -60,6 +63,7 @@ struct NginxLog {
     http_user_agent:String,
     upstream_response_time:String,
     request_time:String,
+    http_host:String,
     request_obj:Option<Request>,
 }
 
@@ -77,7 +81,7 @@ impl NginxLog{
         if request_list.len()==3{
             self.request_obj = Some(Request {
                 method: request_list[0].to_string(),
-                path: request_list[1].to_string(),
+                path: request_list[1].split("?").collect::<Vec<&str>>()[0].to_string(),//get请求去除参数
                 http_version: request_list[2].to_string(),
                 device_type:device_type(&self.http_user_agent).to_string()
             })
