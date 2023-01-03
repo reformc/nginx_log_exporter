@@ -17,6 +17,9 @@ struct Args{
     /// metrics端口
     #[clap(long,short,default_value = "80")]
     web_port: u16,
+    /// ip文件路径
+    #[clap(long,short,default_value = "./ip2region.xdb")]
+    ip_file: String,
     ///日志级别,trace,debug,info,warn,error五种级别，默认为info
     #[clap(long,short,default_value = "info")]
     log_level: String
@@ -33,5 +36,5 @@ pub async fn run(){
         _=>simple_logger::init_with_level(log::Level::Error).unwrap()
     }
     tokio::spawn(web::run(args.web_port));
-    syslog::tt(args.udp_port).await;
+    syslog::tt(args.udp_port,&args.ip_file).await;
 }

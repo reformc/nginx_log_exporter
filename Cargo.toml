@@ -16,3 +16,4 @@ serde_json = "*"
 axum = "*"
 lazy_static = "*"
 chrono = "*"
+xdb = { git = "https://github.com/lionsoul2014/ip2region.git", branch = "master" }

@@ -3,16 +3,18 @@ use std::{collections::HashMap, sync::{Arc, Mutex}};
 use tokio::net::UdpSocket;
 use serde::{Deserialize, Serialize};
 use chrono::prelude::*;
+use xdb::{search_by_ip, searcher_init};
 
 use crate::prome;
 
-pub async fn tt(udp_port:u16){
+pub async fn tt(udp_port:u16,ip_file:&str){
     let request_tmp = TimeConsumingWithLable::new();
     let response_tmp = TimeConsumingWithLable::new();
     request_tmp.tmp();
     response_tmp.tmp();
     let server = UdpSocket::bind(format!("0.0.0.0:{}",udp_port)).await.unwrap();
     let mut buffer = [0; 4096];
+    searcher_init(Some(ip_file.to_owned()));
     loop {
         match server.recv_from(&mut buffer).await{
             Ok((size,_))=>{//address
@@ -53,7 +55,7 @@ pub async fn tt(udp_port:u16){
                                     },
                                     Err(_)=>{}
                                 }                                
-                                log::debug!("{:?}",req);
+                                log::debug!("{},{},{},{},{:?}",search_by_ip(&*request.remote_addr).unwrap(),request.http_host,request.request_time,request.upstream_response_time,req);
                             },
                             None=>{}
                         }
@@ -180,9 +182,13 @@ impl TimeConsuming{
     fn avg(&self)->f64{
         let a = self.list.lock().unwrap();
         let mut res:f64 = 0.0;
-        for (_,c) in a.iter(){
-            res += c;
+        if a.len()==0{
+            0.0
+        }else{
+            for (_,c) in a.iter(){
+                res += c;
+            }
+            res/(a.len() as f64)
         }
-        res/(a.len() as f64)
     }
 }
